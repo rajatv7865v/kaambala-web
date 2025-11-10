@@ -3,6 +3,7 @@ import { Poppins } from 'next/font/google'
 import './globals.css'
 import WhatsAppButton from '@/components/WhatsAppButton'
 import { EnquiryProvider } from '@/contexts/EnquiryContext'
+import { AuthProvider } from '@/contexts/AuthContext'
 
 const poppins = Poppins({
   weight: ['300', '400', '500', '600', '700'],
@@ -23,10 +24,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${poppins.variable} ${poppins.className}`}>
       <body className="antialiased">
-        <EnquiryProvider>
-          {children}
-          <WhatsAppButton />
-        </EnquiryProvider>
+        <AuthProvider>
+          <EnquiryProvider>
+            {children}
+            <WhatsAppButton />
+          </EnquiryProvider>
+        </AuthProvider>
       </body>
     </html>
   )

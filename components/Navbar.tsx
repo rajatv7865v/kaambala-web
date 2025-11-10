@@ -1,16 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Logo from "./Logo";
 import { useEnquiry } from "@/contexts/EnquiryContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const { isEnquiryModalOpen, openEnquiryModal, closeEnquiryModal, prefillService } = useEnquiry();
+  const { user, logout } = useAuth();
+  const router = useRouter();
   const [enquiryForm, setEnquiryForm] = useState({
     name: "",
     phone: "",
@@ -88,11 +90,9 @@ export default function Navbar() {
                   ></span>
                 </a>
                 <a
-                  href="#services"
+                  href="/services"
                   className={`px-5 py-3 rounded-xl font-semibold transition-all duration-300 relative group ${
-                    pathname === "/" &&
-                    typeof window !== "undefined" &&
-                    window.location.hash === "#services"
+                    isActive("/services")
                       ? scrolled
                         ? "text-white bg-white/30"
                         : "text-secondary-600 bg-secondary-100"
@@ -104,11 +104,7 @@ export default function Navbar() {
                   Services
                   <span
                     className={`absolute bottom-1 left-1/2 -translate-x-1/2 transition-all duration-300 ${
-                      pathname === "/" &&
-                      typeof window !== "undefined" &&
-                      window.location.hash === "#services"
-                        ? "w-3/4"
-                        : "w-0 group-hover:w-3/4"
+                      isActive("/services") ? "w-3/4" : "w-0 group-hover:w-3/4"
                     } h-0.5 rounded-full ${
                       scrolled ? "bg-white" : "bg-secondary-500"
                     }`}
@@ -161,28 +157,60 @@ export default function Navbar() {
                     scrolled ? "border-gray-200" : "border-gray-300"
                   }`}
                 >
-                  <button
-                    onClick={() => setIsLoginModalOpen(true)}
-                    className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 active:scale-95 text-white ${
-                      scrolled ? "border border-white/30" : ""
-                    }`}
-                    style={{ backgroundColor: scrolled ? 'rgba(229, 100, 129, 0.9)' : '#e56481' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d45471'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = scrolled ? 'rgba(229, 100, 129, 0.9)' : '#e56481'}
-                  >
-                    Login
-                  </button>
-                  <button
-                    onClick={() => openEnquiryModal()}
-                    className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 active:scale-95 text-white ${
-                      scrolled ? "border border-white/30" : ""
-                    }`}
-                    style={{ backgroundColor: scrolled ? 'rgba(229, 100, 129, 0.9)' : '#e56481' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d45471'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = scrolled ? 'rgba(229, 100, 129, 0.9)' : '#e56481'}
-                  >
-                    Enquiry Now
-                  </button>
+                  {user ? (
+                    <>
+                      <a
+                        href="/dashboard"
+                        className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 active:scale-95 text-white ${
+                          scrolled ? "border border-white/30" : ""
+                        }`}
+                        style={{ backgroundColor: scrolled ? 'rgba(229, 100, 129, 0.9)' : '#e56481' }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d45471'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = scrolled ? 'rgba(229, 100, 129, 0.9)' : '#e56481'}
+                      >
+                        Dashboard
+                      </a>
+                      <button
+                        onClick={() => {
+                          logout();
+                          router.push('/');
+                        }}
+                        className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 active:scale-95 text-white ${
+                          scrolled ? "border border-white/30" : ""
+                        }`}
+                        style={{ backgroundColor: scrolled ? 'rgba(229, 100, 129, 0.9)' : '#e56481' }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d45471'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = scrolled ? 'rgba(229, 100, 129, 0.9)' : '#e56481'}
+                      >
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => router.push('/login')}
+                        className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 active:scale-95 text-white ${
+                          scrolled ? "border border-white/30" : ""
+                        }`}
+                        style={{ backgroundColor: scrolled ? 'rgba(229, 100, 129, 0.9)' : '#e56481' }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d45471'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = scrolled ? 'rgba(229, 100, 129, 0.9)' : '#e56481'}
+                      >
+                        Login
+                      </button>
+                      <button
+                        onClick={() => openEnquiryModal()}
+                        className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 active:scale-95 text-white ${
+                          scrolled ? "border border-white/30" : ""
+                        }`}
+                        style={{ backgroundColor: scrolled ? 'rgba(229, 100, 129, 0.9)' : '#e56481' }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d45471'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = scrolled ? 'rgba(229, 100, 129, 0.9)' : '#e56481'}
+                      >
+                        Enquiry Now
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -226,12 +254,10 @@ export default function Navbar() {
             {isMenuOpen && (
               <div className="lg:hidden py-6 space-y-2 animate-fade-in border-t border-gray-200 bg-white">
                 <a
-                  href="#services"
+                  href="/services"
                   onClick={() => setIsMenuOpen(false)}
                   className={`block px-4 py-3 rounded-xl font-semibold transition-all duration-300 ${
-                    pathname === "/" &&
-                    typeof window !== "undefined" &&
-                    window.location.hash === "#services"
+                    isActive("/services")
                       ? "text-secondary-600 bg-secondary-100"
                       : "text-primary-700 hover:text-primary-500 hover:bg-primary-50"
                   }`}
@@ -260,15 +286,46 @@ export default function Navbar() {
                 >
                   Contact
                 </a>
-                <button
-                  onClick={() => setIsLoginModalOpen(true)}
-                  className="w-full px-6 py-3 rounded-xl font-semibold transition-all duration-300 text-white transform hover:scale-105 active:scale-95"
-                  style={{ backgroundColor: '#e56481' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d45471'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#e56481'}
-                >
-                  Login
-                </button>
+                {user ? (
+                  <>
+                    <a
+                      href="/dashboard"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="w-full px-6 py-3 rounded-xl font-semibold transition-all duration-300 text-white transform hover:scale-105 active:scale-95 text-center block"
+                      style={{ backgroundColor: '#e56481' }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d45471'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#e56481'}
+                    >
+                      Dashboard
+                    </a>
+                    <button
+                      onClick={() => {
+                        logout();
+                        router.push('/');
+                        setIsMenuOpen(false);
+                      }}
+                      className="w-full mt-4 px-6 py-3 rounded-xl font-semibold transition-all duration-300 text-white transform hover:scale-105 active:scale-95"
+                      style={{ backgroundColor: '#e56481' }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d45471'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#e56481'}
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => {
+                      router.push('/login');
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full px-6 py-3 rounded-xl font-semibold transition-all duration-300 text-white transform hover:scale-105 active:scale-95"
+                    style={{ backgroundColor: '#e56481' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d45471'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#e56481'}
+                  >
+                    Login
+                  </button>
+                )}
                 <button
                   onClick={() => {
                     openEnquiryModal();
@@ -551,61 +608,6 @@ export default function Navbar() {
                   </button>
                 </div>
               </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Login Modal */}
-      {isLoginModalOpen && (
-        <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in"
-          onClick={() => setIsLoginModalOpen(false)}
-        >
-          <div
-            className="relative bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 transform scale-in animate-scale-in"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Close Button */}
-            <button
-              onClick={() => setIsLoginModalOpen(false)}
-              className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-all duration-300 transform hover:scale-110 active:scale-95"
-              aria-label="Close modal"
-            >
-              <svg
-                className="w-6 h-6 text-gray-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-
-            {/* Modal Content */}
-            <div className="text-center">
-           
-              <h2 className="text-3xl font-bold text-gray-900 mb-3">
-                Coming Soon
-              </h2>
-              <p className="text-gray-600 mb-6">
-                We're working hard to bring you an amazing login experience.
-                Stay tuned!
-              </p>
-              <button
-                onClick={() => setIsLoginModalOpen(false)}
-                className="px-8 py-3 rounded-xl font-semibold text-white transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
-                style={{ backgroundColor: '#e56481' }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d45471'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#e56481'}
-              >
-                Got it
-              </button>
             </div>
           </div>
         </div>
