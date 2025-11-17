@@ -2,14 +2,18 @@
 
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import Logo from "./Logo";
 import { useEnquiry } from "@/contexts/EnquiryContext";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [animatedPlaceholder, setAnimatedPlaceholder] = useState("");
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [isTyping, setIsTyping] = useState(true);
+  const [showCursor, setShowCursor] = useState(true);
   const { isEnquiryModalOpen, openEnquiryModal, closeEnquiryModal, prefillService } = useEnquiry();
   const { user, logout } = useAuth();
   const router = useRouter();
@@ -22,7 +26,16 @@ export default function Navbar() {
   });
   const [isSubmittingEnquiry, setIsSubmittingEnquiry] = useState(false);
   const [enquirySubmitStatus, setEnquirySubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [selectedLocation, setSelectedLocation] = useState("Gomti Nagar, Lucknow");
   const pathname = usePathname();
+
+  // Placeholder options for typing animation
+  const placeholderOptions = [
+    "What are you looking for?",
+    "Search for salon services...",
+    "Find electrician, plumber...",
+    "Book cleaning services...",
+  ];
 
   // Prefill service when modal opens with a service name
   useEffect(() => {
@@ -31,13 +44,61 @@ export default function Navbar() {
     }
   }, [isEnquiryModalOpen, prefillService]);
 
+  // Typing animation for placeholder
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+    // Don't animate if input is focused or has value
+    if (isSearchFocused || searchQuery) {
+      setAnimatedPlaceholder("");
+      return;
+    }
+
+    const currentPlaceholder = placeholderOptions[placeholderIndex];
+    let timeoutId: NodeJS.Timeout;
+
+    if (isTyping) {
+      // Typing effect
+      if (animatedPlaceholder.length < currentPlaceholder.length) {
+        timeoutId = setTimeout(() => {
+          setAnimatedPlaceholder(currentPlaceholder.slice(0, animatedPlaceholder.length + 1));
+        }, 100); // Typing speed
+      } else {
+        // Wait before deleting
+        timeoutId = setTimeout(() => {
+          setIsTyping(false);
+        }, 2000); // Wait 2 seconds before deleting
+      }
+    } else {
+      // Deleting effect
+      if (animatedPlaceholder.length > 0) {
+        timeoutId = setTimeout(() => {
+          setAnimatedPlaceholder(animatedPlaceholder.slice(0, -1));
+        }, 50); // Deleting speed (faster)
+      } else {
+        // Move to next placeholder
+        setIsTyping(true);
+        setPlaceholderIndex((prev) => (prev + 1) % placeholderOptions.length);
+      }
+    }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [animatedPlaceholder, isTyping, placeholderIndex, isSearchFocused, searchQuery, placeholderOptions]);
+
+  // Blinking cursor effect
+  useEffect(() => {
+    if (isSearchFocused || searchQuery) {
+      setShowCursor(false);
+      return;
+    }
+
+    const cursorInterval = setInterval(() => {
+      setShowCursor((prev) => !prev);
+    }, 530); // Blink speed
+
+    return () => clearInterval(cursorInterval);
+  }, [isSearchFocused, searchQuery]);
+
 
   const isActive = (path: string) => {
     if (path === "/") {
@@ -46,183 +107,144 @@ export default function Navbar() {
     return pathname?.startsWith(path);
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/services?search=${encodeURIComponent(searchQuery)}`);
+      setSearchQuery("");
+    }
+  };
+
   return (
     <>
-      <header className="sticky top-0 z-50 animate-fade-in-down">
-        <nav
-          className={`relative shadow-lg border-b transition-all duration-300 ${
-            scrolled
-              ? "bg-accent-500 border-gray-200"
-              : "bg-white border-transparent"
-          }`}
-        >
+      <header className="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200">
+        {/* Top Bar with Location */}
+        <div className="bg-gray-50 border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-24">
-              <img
-                src="/logo.jpeg"
-                alt="Kaambala"
-                width={100}
-                height={100}
-                className="rounded-full w-20 h-20"
-              />
+            <div className="flex items-center justify-between h-10 text-sm">
+              <div className="flex items-center gap-2">
+                <svg className="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span className="text-gray-600 font-medium">{selectedLocation}</span>
+              </div>
+              <div className="hidden md:flex items-center gap-4 text-gray-600">
+                <a href="/about" className="hover:text-gray-900 transition-colors">About us</a>
+                <a href="/contact" className="hover:text-gray-900 transition-colors">Contact us</a>
+              </div>
+            </div>
+          </div>
+        </div>
 
-              {/* Desktop Navigation */}
-              <div className="hidden lg:flex items-center space-x-1">
-                <a
-                  href="/"
-                  className={`px-5 py-3 rounded-xl font-semibold transition-all duration-300 relative group ${
-                    isActive("/")
-                      ? scrolled
-                        ? "text-white bg-white/30"
-                        : "text-secondary-600 bg-secondary-100"
-                      : scrolled
-                      ? "text-primary-700 hover:text-primary-500 hover:bg-white/20"
-                      : "text-gray-700 hover:text-secondary-600 hover:bg-gray-100"
-                  }`}
-                >
-                  Home
-                  <span
-                    className={`absolute bottom-1 left-1/2 -translate-x-1/2 transition-all duration-300 ${
-                      isActive("/") ? "w-3/4" : "w-0 group-hover:w-3/4"
-                    } h-0.5 rounded-full ${
-                      scrolled ? "bg-white" : "bg-secondary-500"
-                    }`}
-                  ></span>
+        {/* Main Navbar */}
+        <nav className="bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-20">
+              {/* Logo */}
+              <div className="flex-shrink-0">
+                <a href="/" className="flex items-center">
+                  <img
+                    src="/logo.jpeg"
+                    alt="Kaambala"
+                    width={120}
+                    height={120}
+                    className="rounded-full w-16 h-16 object-cover"
+                  />
                 </a>
-                <a
-                  href="/services"
-                  className={`px-5 py-3 rounded-xl font-semibold transition-all duration-300 relative group ${
-                    isActive("/services")
-                      ? scrolled
-                        ? "text-white bg-white/30"
-                        : "text-secondary-600 bg-secondary-100"
-                      : scrolled
-                      ? "text-primary-700 hover:text-primary-500 hover:bg-white/20"
-                      : "text-gray-700 hover:text-secondary-600 hover:bg-gray-100"
-                  }`}
-                >
-                  Services
-                  <span
-                    className={`absolute bottom-1 left-1/2 -translate-x-1/2 transition-all duration-300 ${
-                      isActive("/services") ? "w-3/4" : "w-0 group-hover:w-3/4"
-                    } h-0.5 rounded-full ${
-                      scrolled ? "bg-white" : "bg-secondary-500"
-                    }`}
-                  ></span>
-                </a>
-                <a
-                  href="/about"
-                  className={`px-5 py-3 rounded-xl font-semibold transition-all duration-300 relative group ${
-                    isActive("/about")
-                      ? scrolled
-                        ? "text-white bg-white/30"
-                        : "text-secondary-600 bg-secondary-100"
-                      : scrolled
-                      ? "text-primary-700 hover:text-primary-500 hover:bg-white/20"
-                      : "text-gray-700 hover:text-secondary-600 hover:bg-gray-100"
-                  }`}
-                >
-                  About
-                  <span
-                    className={`absolute bottom-1 left-1/2 -translate-x-1/2 transition-all duration-300 ${
-                      isActive("/about") ? "w-3/4" : "w-0 group-hover:w-3/4"
-                    } h-0.5 rounded-full ${
-                      scrolled ? "bg-white" : "bg-secondary-500"
-                    }`}
-                  ></span>
-                </a>
-                <a
-                  href="/contact"
-                  className={`px-5 py-3 rounded-xl font-semibold transition-all duration-300 relative group ${
-                    isActive("/contact")
-                      ? scrolled
-                        ? "text-white bg-white/30"
-                        : "text-secondary-600 bg-secondary-100"
-                      : scrolled
-                      ? "text-primary-700 hover:text-primary-500 hover:bg-white/20"
-                      : "text-gray-700 hover:text-secondary-600 hover:bg-gray-100"
-                  }`}
-                >
-                  Contact
-                  <span
-                    className={`absolute bottom-1 left-1/2 -translate-x-1/2 transition-all duration-300 ${
-                      isActive("/contact") ? "w-3/4" : "w-0 group-hover:w-3/4"
-                    } h-0.5 rounded-full ${
-                      scrolled ? "bg-white" : "bg-secondary-500"
-                    }`}
-                  ></span>
-                </a>
-                <div
-                  className={`ml-4 pl-4 border-l flex items-center gap-3 ${
-                    scrolled ? "border-gray-200" : "border-gray-300"
-                  }`}
-                >
+              </div>
+
+              {/* Search Bar - Desktop */}
+              <div className="hidden md:flex flex-1 max-w-2xl mx-8">
+                <form onSubmit={handleSearch} className="w-full">
+                  <div className={`relative flex items-center bg-gray-50 rounded-lg border-2 transition-all ${
+                    isSearchFocused ? 'border-primary-500 bg-white shadow-md' : 'border-transparent'
+                  }`}>
+                    <svg className="w-5 h-5 text-gray-400 ml-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onFocus={() => setIsSearchFocused(true)}
+                      onBlur={() => setIsSearchFocused(false)}
+                      placeholder={isSearchFocused || searchQuery ? "What are you looking for?" : animatedPlaceholder + (showCursor ? "|" : "")}
+                      className="flex-1 px-4 py-3 bg-transparent border-0 focus:outline-none text-gray-900 placeholder-gray-400"
+                    />
+                    {searchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => setSearchQuery("")}
+                        className="mr-2 p-1 hover:bg-gray-200 rounded-full transition-colors"
+                      >
+                        <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                </form>
+              </div>
+
+              {/* Right Side Actions */}
+              <div className="flex items-center gap-4">
+                {/* Desktop Actions */}
+                <div className="hidden md:flex items-center gap-3">
+                  {/* Cart Icon */}
+                  <button
+                    onClick={() => router.push('/cart')}
+                    className="relative p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all"
+                    aria-label="Shopping Cart"
+                  >
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    {/* Cart Badge - Optional, can be removed if not needed */}
+                    <span className="absolute top-0 right-0 w-4 h-4 bg-primary-500 text-white text-xs rounded-full flex items-center justify-center">0</span>
+                  </button>
+
                   {user ? (
                     <>
                       <a
                         href="/dashboard"
-                        className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 active:scale-95 text-white ${
-                          scrolled ? "border border-white/30" : ""
-                        }`}
-                        style={{ backgroundColor: scrolled ? 'rgba(229, 100, 129, 0.9)' : '#e56481' }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d45471'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = scrolled ? 'rgba(229, 100, 129, 0.9)' : '#e56481'}
+                        className="p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all"
+                        aria-label="Dashboard"
                       >
-                        Dashboard
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
                       </a>
                       <button
                         onClick={() => {
                           logout();
                           router.push('/');
                         }}
-                        className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 active:scale-95 text-white ${
-                          scrolled ? "border border-white/30" : ""
-                        }`}
-                        style={{ backgroundColor: scrolled ? 'rgba(229, 100, 129, 0.9)' : '#e56481' }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d45471'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = scrolled ? 'rgba(229, 100, 129, 0.9)' : '#e56481'}
+                        className="p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all"
+                        aria-label="Logout"
                       >
-                        Logout
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
                       </button>
                     </>
                   ) : (
-                    <>
-                      <button
-                        onClick={() => router.push('/login')}
-                        className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 active:scale-95 text-white ${
-                          scrolled ? "border border-white/30" : ""
-                        }`}
-                        style={{ backgroundColor: scrolled ? 'rgba(229, 100, 129, 0.9)' : '#e56481' }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d45471'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = scrolled ? 'rgba(229, 100, 129, 0.9)' : '#e56481'}
-                      >
-                        Login
-                      </button>
-                      <button
-                        onClick={() => openEnquiryModal()}
-                        className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 active:scale-95 text-white ${
-                          scrolled ? "border border-white/30" : ""
-                        }`}
-                        style={{ backgroundColor: scrolled ? 'rgba(229, 100, 129, 0.9)' : '#e56481' }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d45471'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = scrolled ? 'rgba(229, 100, 129, 0.9)' : '#e56481'}
-                      >
-                        Enquiry Now
-                      </button>
-                    </>
+                    <button
+                      onClick={() => router.push('/login')}
+                      className="p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all"
+                      aria-label="Login"
+                    >
+                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </button>
                   )}
                 </div>
-              </div>
 
-              {/* Mobile Menu Button */}
-              <div className="lg:hidden">
+                {/* Mobile Menu Button */}
                 <button
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className={`p-3 rounded-xl transition-all duration-300 ${
-                    scrolled
-                      ? "text-primary-700 hover:bg-white/20"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
+                  className="md:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                   aria-label="Toggle menu"
                 >
                   <svg
@@ -230,36 +252,61 @@ export default function Navbar() {
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
-                    strokeWidth={2.5}
+                    strokeWidth={2}
                   >
                     {isMenuOpen ? (
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M6 18L18 6M6 6l12 12"
-                      />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     ) : (
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M4 6h16M4 12h16M4 18h16"
-                      />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                     )}
                   </svg>
                 </button>
               </div>
             </div>
 
+            {/* Mobile Search Bar */}
+            <div className="md:hidden pb-4">
+              <form onSubmit={handleSearch}>
+                <div className={`relative flex items-center bg-gray-50 rounded-lg border-2 transition-all ${
+                  isSearchFocused ? 'border-primary-500 bg-white shadow-md' : 'border-transparent'
+                }`}>
+                  <svg className="w-5 h-5 text-gray-400 ml-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => setIsSearchFocused(true)}
+                    onBlur={() => setIsSearchFocused(false)}
+                    placeholder={isSearchFocused || searchQuery ? "What are you looking for?" : animatedPlaceholder + "|"}
+                    className="flex-1 px-4 py-3 bg-transparent border-0 focus:outline-none text-gray-900 placeholder-gray-400"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery("")}
+                      className="mr-2 p-1 hover:bg-gray-200 rounded-full transition-colors"
+                    >
+                      <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              </form>
+            </div>
+
             {/* Mobile Menu */}
             {isMenuOpen && (
-              <div className="lg:hidden py-6 space-y-2 animate-fade-in border-t border-gray-200 bg-white">
+              <div className="md:hidden py-4 space-y-2 border-t border-gray-200">
                 <a
                   href="/services"
                   onClick={() => setIsMenuOpen(false)}
-                  className={`block px-4 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                  className={`block px-4 py-3 rounded-lg font-medium transition-colors ${
                     isActive("/services")
-                      ? "text-secondary-600 bg-secondary-100"
-                      : "text-primary-700 hover:text-primary-500 hover:bg-primary-50"
+                      ? "text-primary-600 bg-primary-50"
+                      : "text-gray-700 hover:bg-gray-50"
                   }`}
                 >
                   Services
@@ -267,10 +314,10 @@ export default function Navbar() {
                 <a
                   href="/about"
                   onClick={() => setIsMenuOpen(false)}
-                  className={`block px-4 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                  className={`block px-4 py-3 rounded-lg font-medium transition-colors ${
                     isActive("/about")
-                      ? "text-secondary-600 bg-secondary-100"
-                      : "text-primary-700 hover:text-primary-500 hover:bg-primary-50"
+                      ? "text-primary-600 bg-primary-50"
+                      : "text-gray-700 hover:bg-gray-50"
                   }`}
                 >
                   About
@@ -278,25 +325,39 @@ export default function Navbar() {
                 <a
                   href="/contact"
                   onClick={() => setIsMenuOpen(false)}
-                  className={`block px-4 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                  className={`block px-4 py-3 rounded-lg font-medium transition-colors ${
                     isActive("/contact")
-                      ? "text-secondary-600 bg-secondary-100"
-                      : "text-primary-700 hover:text-primary-500 hover:bg-primary-50"
+                      ? "text-primary-600 bg-primary-50"
+                      : "text-gray-700 hover:bg-gray-50"
                   }`}
                 >
                   Contact
                 </a>
+                {/* Cart Icon - Mobile */}
+                <button
+                  onClick={() => {
+                    router.push('/cart');
+                    setIsMenuOpen(false);
+                  }}
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  <span>Shopping Cart</span>
+                </button>
+
                 {user ? (
                   <>
                     <a
                       href="/dashboard"
                       onClick={() => setIsMenuOpen(false)}
-                      className="w-full px-6 py-3 rounded-xl font-semibold transition-all duration-300 text-white transform hover:scale-105 active:scale-95 text-center block"
-                      style={{ backgroundColor: '#e56481' }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d45471'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#e56481'}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                     >
-                      Dashboard
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      <span>Dashboard</span>
                     </a>
                     <button
                       onClick={() => {
@@ -304,12 +365,12 @@ export default function Navbar() {
                         router.push('/');
                         setIsMenuOpen(false);
                       }}
-                      className="w-full mt-4 px-6 py-3 rounded-xl font-semibold transition-all duration-300 text-white transform hover:scale-105 active:scale-95"
-                      style={{ backgroundColor: '#e56481' }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d45471'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#e56481'}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors w-full text-left"
                     >
-                      Logout
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                      <span>Logout</span>
                     </button>
                   </>
                 ) : (
@@ -318,26 +379,14 @@ export default function Navbar() {
                       router.push('/login');
                       setIsMenuOpen(false);
                     }}
-                    className="w-full px-6 py-3 rounded-xl font-semibold transition-all duration-300 text-white transform hover:scale-105 active:scale-95"
-                    style={{ backgroundColor: '#e56481' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d45471'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#e56481'}
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors w-full text-left"
                   >
-                    Login
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span>Login</span>
                   </button>
                 )}
-                <button
-                  onClick={() => {
-                    openEnquiryModal();
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full mt-4 px-6 py-3 rounded-xl font-semibold transition-all duration-300 text-white transform hover:scale-105 active:scale-95"
-                  style={{ backgroundColor: '#e56481' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d45471'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#e56481'}
-                >
-                  Enquiry Now
-                </button>
               </div>
             )}
           </div>
