@@ -4,6 +4,7 @@ import './globals.css'
 import WhatsAppButton from '@/components/WhatsAppButton'
 import { EnquiryProvider } from '@/contexts/EnquiryContext'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { CartProvider } from '@/contexts/CartContext'
 
 const poppins = Poppins({
   weight: ['300', '400', '500', '600', '700'],
@@ -25,10 +26,12 @@ export default function RootLayout({
     <html lang="en" className={`${poppins.variable} ${poppins.className}`}>
       <body className="antialiased">
         <AuthProvider>
-          <EnquiryProvider>
-            {children}
-            <WhatsAppButton />
-          </EnquiryProvider>
+          <CartProvider>
+            <EnquiryProvider>
+              {children}
+              <WhatsAppButton />
+            </EnquiryProvider>
+          </CartProvider>
         </AuthProvider>
       </body>
     </html>

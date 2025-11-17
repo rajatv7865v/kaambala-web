@@ -1,6 +1,8 @@
 import Navbar from '@/components/Navbar'
 import Hero from '@/components/Hero'
 import MostBooked from '@/components/MostBooked'
+import AdBanner from '@/components/AdBanner'
+import AllServices from '@/components/AllServices'
 import Services from '@/components/Services'
 import Features from '@/components/Features'
 import HowItWorks from '@/components/HowItWorks'
@@ -13,12 +15,14 @@ export default function Home() {
     <main className="min-h-screen bg-white">
       <Navbar />
       <Hero />
+      <AdBanner />
       <MostBooked />
-      <Features />
+      <AllServices />
+      {/* <Features />
       <HowItWorks />
-      <Stats />
+      <Stats /> */}
       {/* <Services /> */}
-      <Testimonials />
+      {/* <Testimonials /> */}
       <Footer />
     </main>
   )

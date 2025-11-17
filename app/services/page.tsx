@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { useEnquiry } from '@/contexts/EnquiryContext'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
@@ -144,8 +145,35 @@ const stats = [
 
 export default function ServicesPage() {
   const { openEnquiryModal } = useEnquiry();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // Read search query from URL params on mount and when params change
+  useEffect(() => {
+    const searchParam = searchParams.get('search');
+    if (searchParam) {
+      setSearchQuery(decodeURIComponent(searchParam));
+    }
+  }, [searchParams]);
+
+  // Handle search input change (local state only)
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+  };
+
+  // Handle search form submission - update URL
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (searchQuery.trim()) {
+      params.set('search', encodeURIComponent(searchQuery.trim()));
+      router.push(`/services?${params.toString()}`);
+    } else {
+      router.push('/services');
+    }
+  };
 
   // Service mapping
   const serviceMap: { [key: string]: string } = {
@@ -214,18 +242,20 @@ export default function ServicesPage() {
           
           {/* Search Bar */}
           <div className="max-w-2xl mx-auto">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search for services..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-6 py-4 pl-14 rounded-2xl border-0 text-gray-900 text-lg focus:ring-4 focus:ring-white/50 outline-none shadow-2xl"
-              />
-              <svg className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
+            <form onSubmit={handleSearchSubmit}>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search for services..."
+                  value={searchQuery}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  className="w-full px-6 py-4 pl-14 rounded-2xl border-0 text-gray-900 text-lg focus:ring-4 focus:ring-white/50 outline-none shadow-2xl"
+                />
+                <svg className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </form>
           </div>
         </div>
       </section>

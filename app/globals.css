@@ -15,6 +15,14 @@
 body {
   font-family: var(--font-poppins);
   scroll-behavior: smooth;
+  /* Add bottom padding on mobile to prevent content from being hidden behind bottom nav */
+  padding-bottom: 4rem;
+}
+
+@media (min-width: 768px) {
+  body {
+    padding-bottom: 0;
+  }
 }
 
 @layer utilities {
