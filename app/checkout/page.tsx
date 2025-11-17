@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCart } from '@/contexts/CartContext'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { addToCart } = useCart()
@@ -273,6 +273,24 @@ export default function CheckoutPage() {
 
       <Footer />
     </div>
+  )
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white">
+        <Navbar />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <p className="text-gray-600 text-lg">Loading service details...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    }>
+      <CheckoutContent />
+    </Suspense>
   )
 }
 

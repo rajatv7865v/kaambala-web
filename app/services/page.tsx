@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useEnquiry } from '@/contexts/EnquiryContext'
 import Navbar from '@/components/Navbar'
@@ -143,7 +143,7 @@ const stats = [
   { number: '4.8', label: 'Average Rating', icon: '⭐' },
 ]
 
-export default function ServicesPage() {
+function ServicesContent() {
   const { openEnquiryModal } = useEnquiry();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -497,5 +497,23 @@ export default function ServicesPage() {
       </section>
       <Footer/>
     </div>
+  )
+}
+
+export default function ServicesPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white">
+        <Navbar />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <p className="text-gray-600 text-lg">Loading services...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    }>
+      <ServicesContent />
+    </Suspense>
   )
 }
