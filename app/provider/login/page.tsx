@@ -28,7 +28,7 @@ export default function ProviderLoginPage() {
         // Check if user is service provider
         if (data.user.role === 'service-provider') {
           localStorage.setItem('auth_token', data.token);
-          router.push('/provider/dashboard');
+          router.push('/');
         } else {
           setError('Access denied. Service provider credentials required.');
         }

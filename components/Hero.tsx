@@ -154,7 +154,9 @@ export default function Hero() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -180,7 +182,7 @@ export default function Hero() {
   // Handle escape key to close modal
   useEffect(() => {
     if (!isModalOpen) return;
-    
+
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         closeModal();
@@ -200,11 +202,18 @@ export default function Hero() {
     setIsModalOpen(true);
   };
 
-  const handleSubcategoryClick = (subcategory: Subcategory, category: Category) => {
+  const handleSubcategoryClick = (
+    subcategory: Subcategory,
+    category: Category
+  ) => {
     // Navigate to subcategory services page
-    const categorySlug = category.title.toLowerCase().replace(/\s+/g, '-');
-    const subcategorySlug = subcategory.name.toLowerCase().replace(/\s+/g, '-');
-    router.push(`/services/${encodeURIComponent(categorySlug)}/${encodeURIComponent(subcategorySlug)}`);
+    const categorySlug = category.title.toLowerCase().replace(/\s+/g, "-");
+    const subcategorySlug = subcategory.name.toLowerCase().replace(/\s+/g, "-");
+    router.push(
+      `/services/${encodeURIComponent(categorySlug)}/${encodeURIComponent(
+        subcategorySlug
+      )}`
+    );
   };
 
   return (
@@ -218,7 +227,6 @@ export default function Hero() {
           {/* Left Content */}
           <AnimateOnScroll animation="fade-in-right" className="space-y-8 z-10">
             {/* Location */}
-            
 
             {/* Main Heading */}
             <AnimateOnScroll animation="fade-in-up" delay={200}>
@@ -235,10 +243,6 @@ export default function Hero() {
                 </p>
               </div>
             </AnimateOnScroll>
-
-      
-
-          
 
             {/* Category Cards */}
             <AnimateOnScroll animation="fade-in-up" delay={500}>
@@ -552,18 +556,20 @@ export default function Hero() {
       {/* Subcategory Modal */}
       {isModalOpen && selectedCategory && (
         <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in"
           onClick={closeModal}
         >
           <div
-            className="relative bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden animate-scale-in"
+            className="relative bg-white rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden animate-scale-in flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className={`bg-gradient-to-r ${selectedCategory.color} p-6 text-white relative`}>
+            <div
+              className={`bg-gradient-to-r ${selectedCategory.color} p-6 md:p-8 text-white relative`}
+            >
               <button
                 onClick={closeModal}
-                className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/20 transition-all duration-300 transform hover:scale-110 active:scale-95 z-10"
+                className="absolute top-4 right-4 md:top-6 md:right-6 p-2.5 rounded-full hover:bg-white/20 transition-all duration-300 transform hover:scale-110 active:scale-95 z-10 backdrop-blur-sm"
                 aria-label="Close modal"
               >
                 <svg
@@ -571,7 +577,7 @@ export default function Hero() {
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
-                  strokeWidth={2}
+                  strokeWidth={2.5}
                 >
                   <path
                     strokeLinecap="round"
@@ -580,49 +586,82 @@ export default function Hero() {
                   />
                 </svg>
               </button>
-              
-              <div className="flex items-center gap-4 pr-12">
-                <div className="text-5xl bg-white/20 rounded-2xl p-4 backdrop-blur-sm">
+
+              <div className="flex items-center gap-4 md:gap-6 pr-12">
+                <div className="text-5xl md:text-6xl bg-white/20 rounded-2xl p-4 md:p-5 backdrop-blur-sm shadow-lg">
                   {selectedCategory.icon}
                 </div>
                 <div>
-                  <h2 className="text-3xl font-bold mb-1">
+                  <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2">
                     {selectedCategory.title}
                   </h2>
-                  <p className="text-white/90 text-sm">
-                    Choose a service to book
+                  <p className="text-white/90 text-sm md:text-base">
+                    Select a service to continue
                   </p>
                 </div>
               </div>
             </div>
 
             {/* Subcategories Grid */}
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="p-6 md:p-8 overflow-y-auto max-h-[calc(90vh-200px)] flex-1">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
                 {selectedCategory.subcategories.map((subcategory, index) => (
                   <button
                     key={index}
-                    className="group relative bg-white rounded-xl p-5 border-2 border-gray-100 hover:border-gray-300 hover:shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95 text-left"
+                    className="group relative bg-gradient-to-br from-white to-gray-50 rounded-2xl p-5 md:p-6 border-2 border-gray-100 hover:border-[#e56481] hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 text-left overflow-hidden"
                     onClick={() => {
                       handleSubcategoryClick(subcategory, selectedCategory);
                       closeModal();
                     }}
                   >
-                    <div className="flex flex-col items-start space-y-2">
-                      <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${selectedCategory.color} opacity-10 group-hover:opacity-20 transition-opacity duration-300 flex items-center justify-center mb-2`}>
-                        <span className="text-2xl">{subcategory.icon}</span>
+                    {/* Hover gradient overlay */}
+                    <div
+                      className={`absolute inset-0 bg-gradient-to-br ${selectedCategory.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
+                    ></div>
+                    
+                    {/* Content */}
+                    <div className="relative z-10 flex flex-col items-start space-y-3">
+                      <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 group-hover:from-white group-hover:to-gray-50 transition-all duration-300 flex items-center justify-center shadow-sm group-hover:shadow-md mb-1">
+                        <span className="text-3xl md:text-4xl transform group-hover:scale-110 transition-transform duration-300">
+                          {subcategory.icon}
+                        </span>
                       </div>
-                      <span className="text-sm font-semibold text-gray-900 group-hover:text-gray-700 transition-colors duration-300 leading-tight">
+                      <span className="text-sm md:text-base font-bold text-gray-900 group-hover:text-[#e56481] transition-colors duration-300 leading-tight line-clamp-2">
                         {subcategory.name}
                       </span>
-                      <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                        <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                        <span>4.8</span>
+                      <div className="flex items-center gap-2 text-xs text-gray-500 mt-auto pt-2">
+                        <div className="flex items-center gap-1">
+                          <svg
+                            className="w-4 h-4 text-yellow-400"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
+                          <span className="font-semibold">4.8</span>
+                        </div>
                         <span className="text-gray-300">•</span>
-                        <span>View Services</span>
+                        <span className="text-[#e56481] font-medium group-hover:underline">
+                          Book Now
+                        </span>
                       </div>
+                    </div>
+                    
+                    {/* Arrow indicator */}
+                    <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <svg
+                        className="w-5 h-5 text-[#e56481] transform group-hover:translate-x-1 transition-transform duration-300"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
                     </div>
                   </button>
                 ))}

@@ -367,15 +367,23 @@ export default function Navbar() {
 
                   {user ? (
                     <>
-                      <a
-                        href="/dashboard"
-                        className="p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all"
+                      <button
+                        onClick={() => {
+                          const role = user.role || 'user';
+                          if (role === 'service-provider') {
+                            router.push('/provider/dashboard');
+                          } else {
+                            router.push('/dashboard');
+                          }
+                        }}
+                        className="px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all font-medium flex items-center gap-2"
                         aria-label="Dashboard"
                       >
-                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                         </svg>
-                      </a>
+                        <span>Dashboard</span>
+                      </button>
                       <button
                         onClick={() => {
                           logout();
@@ -392,12 +400,13 @@ export default function Navbar() {
                   ) : (
                     <button
                       onClick={() => router.push('/login')}
-                      className="p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all"
+                      className="px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all font-medium flex items-center gap-2"
                       aria-label="Login"
                     >
-                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
+                      <span>Login</span>
                     </button>
                   )}
                 </div>
@@ -515,16 +524,23 @@ export default function Navbar() {
 
                 {user ? (
                   <>
-                    <a
-                      href="/dashboard"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                    <button
+                      onClick={() => {
+                        const role = user.role || 'user';
+                        if (role === 'service-provider') {
+                          router.push('/provider/dashboard');
+                        } else {
+                          router.push('/dashboard');
+                        }
+                        setIsMenuOpen(false);
+                      }}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors w-full text-left"
                     >
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                       </svg>
                       <span>Dashboard</span>
-                    </a>
+                    </button>
                     <button
                       onClick={() => {
                         logout();
@@ -1202,30 +1218,37 @@ export default function Navbar() {
             )}
           </button>
 
-          {/* Profile/Login */}
+          {/* Dashboard/Login */}
           {user ? (
-            <a
-              href="/dashboard"
+            <button
+              onClick={() => {
+                const role = user.role || 'user';
+                if (role === 'service-provider') {
+                  router.push('/provider/dashboard');
+                } else {
+                  router.push('/dashboard');
+                }
+                setIsMenuOpen(false);
+              }}
               className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
-                isActive('/dashboard') ? 'text-[#e56481]' : 'text-gray-600'
+                isActive('/dashboard') || isActive('/provider/dashboard') ? 'text-[#e56481]' : 'text-gray-600'
               }`}
-              onClick={() => setIsMenuOpen(false)}
             >
               <svg
-                className={`w-6 h-6 mb-1 ${isActive('/dashboard') ? 'text-[#e56481]' : 'text-gray-600'}`}
-                fill={isActive('/dashboard') ? 'currentColor' : 'none'}
+                className={`w-6 h-6 mb-1 ${isActive('/dashboard') || isActive('/provider/dashboard') ? 'text-[#e56481]' : 'text-gray-600'}`}
+                fill={isActive('/dashboard') || isActive('/provider/dashboard') ? 'currentColor' : 'none'}
                 viewBox="0 0 24 24"
                 stroke="currentColor"
-                strokeWidth={isActive('/dashboard') ? 0 : 2}
+                strokeWidth={isActive('/dashboard') || isActive('/provider/dashboard') ? 0 : 2}
               >
-                {isActive('/dashboard') ? (
-                  <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
+                {isActive('/dashboard') || isActive('/provider/dashboard') ? (
+                  <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 )}
               </svg>
-              <span className="text-xs font-medium">Profile</span>
-            </a>
+              <span className="text-xs font-medium">Dashboard</span>
+            </button>
           ) : (
             <button
               onClick={() => {

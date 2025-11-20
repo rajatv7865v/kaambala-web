@@ -35,13 +35,8 @@ export default function SignupPage() {
     const result = await signup(name, email, phone, password);
     
     if (result.success && result.user) {
-      // Redirect based on user role (new signups are always 'user', but for consistency)
-      const role = result.user.role || 'user';
-      if (role === 'service-provider') {
-        router.push('/provider/dashboard');
-      } else {
-        router.push('/dashboard');
-      }
+      // Redirect to home page after signup
+      router.push('/');
     } else {
       setError(result.error || 'Signup failed');
       setIsLoading(false);

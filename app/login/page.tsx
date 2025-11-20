@@ -21,13 +21,8 @@ export default function LoginPage() {
     const result = await login(email, password);
 
     if (result.success && result.user) {
-      // Redirect based on user role
-      const role = result.user.role || 'user';
-      if (role === 'service-provider') {
-        router.push('/provider/dashboard');
-      } else {
-        router.push('/dashboard');
-      }
+      // Redirect to home page after login
+      router.push('/');
     } else {
       setError(result.error || 'Login failed');
       setIsLoading(false);

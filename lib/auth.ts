@@ -10,6 +10,7 @@ interface User {
   password: string; // In production, this should be hashed
   address?: string;
   role?: 'user' | 'admin' | 'service-provider'; // User role
+  serviceType?: string; // Service type for service providers (e.g., 'electrician', 'plumber', etc.)
   createdAt: string;
 }
 
@@ -21,8 +22,13 @@ function generateToken(): string {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
 }
 
-// Simple token storage (in production, use Redis or database)
-const tokens: { [key: string]: string } = {}; // token -> userId
+// Token storage with expiration (in production, use Redis or database)
+interface TokenData {
+  userId: string;
+  expiresAt: number; // timestamp in milliseconds
+}
+
+const tokens: { [key: string]: TokenData } = {}; // token -> TokenData
 
 export function getUserByEmail(email: string): User | undefined {
   return users.find(u => u.email.toLowerCase() === email.toLowerCase());
@@ -32,7 +38,7 @@ export function getUserById(id: string): User | undefined {
   return users.find(u => u.id === id);
 }
 
-export function createUser(name: string, email: string, phone: string, password: string, role: 'user' | 'admin' | 'service-provider' = 'user'): User {
+export function createUser(name: string, email: string, phone: string, password: string, role: 'user' | 'admin' | 'service-provider' = 'user', serviceType?: string): User {
   const user: User = {
     id: Date.now().toString(),
     name,
@@ -40,6 +46,7 @@ export function createUser(name: string, email: string, phone: string, password:
     phone,
     password, // In production, hash this with bcrypt
     role,
+    serviceType,
     createdAt: new Date().toISOString(),
   };
   users.push(user);
@@ -48,16 +55,49 @@ export function createUser(name: string, email: string, phone: string, password:
 
 export function createToken(userId: string): string {
   const token = generateToken();
-  tokens[token] = userId;
+  // Token expires in 24 hours (24 * 60 * 60 * 1000 milliseconds)
+  const expiresAt = Date.now() + (24 * 60 * 60 * 1000);
+  tokens[token] = {
+    userId,
+    expiresAt,
+  };
   return token;
 }
 
 export function getUserIdFromToken(token: string): string | null {
-  return tokens[token] || null;
+  const tokenData = tokens[token];
+  
+  if (!tokenData) {
+    return null;
+  }
+  
+  // Check if token is expired
+  if (Date.now() > tokenData.expiresAt) {
+    // Token expired, remove it
+    delete tokens[token];
+    return null;
+  }
+  
+  return tokenData.userId;
 }
 
 export function deleteToken(token: string): void {
   delete tokens[token];
+}
+
+// Clean up expired tokens periodically (optional, for memory management)
+export function cleanupExpiredTokens(): void {
+  const now = Date.now();
+  Object.keys(tokens).forEach(token => {
+    if (tokens[token].expiresAt < now) {
+      delete tokens[token];
+    }
+  });
+}
+
+// Run cleanup every hour (only in server environment)
+if (typeof process !== 'undefined' && process.env) {
+  setInterval(cleanupExpiredTokens, 60 * 60 * 1000); // Every hour
 }
 
 export function verifyPassword(user: User, password: string): boolean {
@@ -122,36 +162,41 @@ function initializeServiceProviderAccounts() {
       email: 'provider@kaambala.com',
       phone: '+91 9876543211',
       password: 'provider123',
+      serviceType: 'other',
     },
     {
       name: 'John Electrician',
       email: 'electrician@kaambala.com',
       phone: '+91 9876543212',
       password: 'electrician123',
+      serviceType: 'electrician',
     },
     {
       name: 'Mike Plumber',
       email: 'plumber@kaambala.com',
       phone: '+91 9876543213',
       password: 'plumber123',
+      serviceType: 'plumbing',
     },
     {
       name: 'Sarah Beautician',
       email: 'beautician@kaambala.com',
       phone: '+91 9876543214',
       password: 'beautician123',
+      serviceType: 'beauty-salon',
     },
     {
       name: 'David Carpenter',
       email: 'carpenter@kaambala.com',
       phone: '+91 9876543215',
       password: 'carpenter123',
+      serviceType: 'carpenter',
     },
   ];
 
   providerAccounts.forEach(account => {
-    const providerUser = createUser(account.name, account.email, account.phone, account.password, 'service-provider');
-    console.log(`Service provider account created: ${providerUser.email} / Password: ${account.password}`);
+    const providerUser = createUser(account.name, account.email, account.phone, account.password, 'service-provider', account.serviceType);
+    console.log(`Service provider account created: ${providerUser.email} / Password: ${account.password} / Service Type: ${account.serviceType}`);
   });
 }
 
