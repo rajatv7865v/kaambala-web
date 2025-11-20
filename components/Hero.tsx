@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import AnimateOnScroll from "./AnimateOnScroll";
 
 const placeholders = [
@@ -14,9 +15,147 @@ const placeholders = [
   "Salon Services",
 ];
 
+interface Subcategory {
+  name: string;
+  icon: string;
+}
+
+interface Category {
+  icon: string;
+  title: string;
+  color: string;
+  subcategories: Subcategory[];
+}
+
+const categories: Category[] = [
+  {
+    icon: "💇‍♀️",
+    title: "Women Salon",
+    color: "from-pink-500 to-pink-600",
+    subcategories: [
+      { name: "Haircut & Styling", icon: "✂️" },
+      { name: "Hair Color", icon: "🎨" },
+      { name: "Hair Spa", icon: "💆‍♀️" },
+      { name: "Waxing", icon: "🪶" },
+      { name: "Facial & Cleanup", icon: "✨" },
+      { name: "Threading", icon: "🧵" },
+      { name: "Manicure & Pedicure", icon: "💅" },
+      { name: "Bridal Makeup", icon: "👰" },
+    ],
+  },
+  {
+    icon: "🧹",
+    title: "Cleaning",
+    color: "from-green-500 to-green-600",
+    subcategories: [
+      { name: "Deep Cleaning", icon: "🧽" },
+      { name: "Regular Cleaning", icon: "🧼" },
+      { name: "Bathroom Cleaning", icon: "🚿" },
+      { name: "Kitchen Cleaning", icon: "🍳" },
+      { name: "Sofa & Carpet Cleaning", icon: "🛋️" },
+      { name: "Window Cleaning", icon: "🪟" },
+      { name: "Post-Party Cleaning", icon: "🎉" },
+      { name: "Office Cleaning", icon: "🏢" },
+    ],
+  },
+  {
+    icon: "❄️",
+    title: "AC Service",
+    color: "from-blue-500 to-blue-600",
+    subcategories: [
+      { name: "AC Installation", icon: "🔧" },
+      { name: "AC Repair", icon: "🔨" },
+      { name: "AC Gas Filling", icon: "⛽" },
+      { name: "AC Cleaning", icon: "🧹" },
+      { name: "AC Maintenance", icon: "🛠️" },
+      { name: "AC Uninstallation", icon: "📦" },
+      { name: "AC Service & Repair", icon: "⚙️" },
+      { name: "Split AC Service", icon: "❄️" },
+    ],
+  },
+  {
+    icon: "⚡",
+    title: "Electrician",
+    color: "from-yellow-500 to-yellow-600",
+    subcategories: [
+      { name: "Electrical Repairs", icon: "🔌" },
+      { name: "Switch & Socket Installation", icon: "🔘" },
+      { name: "Fan Installation", icon: "🌀" },
+      { name: "Light Installation", icon: "💡" },
+      { name: "MCB & Fuse Repair", icon: "⚡" },
+      { name: "Wiring & Rewiring", icon: "🔗" },
+      { name: "Switchboard Repair", icon: "📱" },
+      { name: "Home Automation", icon: "🏠" },
+    ],
+  },
+  {
+    icon: "🚿",
+    title: "Plumber",
+    color: "from-cyan-500 to-cyan-600",
+    subcategories: [
+      { name: "Tap Repair", icon: "🚰" },
+      { name: "Leak Fixing", icon: "💧" },
+      { name: "Pipe Installation", icon: "🔩" },
+      { name: "Bathroom Fitting", icon: "🚽" },
+      { name: "Geyser Installation", icon: "🔥" },
+      { name: "Water Tank Cleaning", icon: "💦" },
+      { name: "Blockage Removal", icon: "🚫" },
+      { name: "Flush Tank Repair", icon: "🪠" },
+    ],
+  },
+  {
+    icon: "🔧",
+    title: "Appliance Repair",
+    color: "from-indigo-500 to-indigo-600",
+    subcategories: [
+      { name: "Washing Machine Repair", icon: "🌀" },
+      { name: "Refrigerator Repair", icon: "🧊" },
+      { name: "Microwave Repair", icon: "📻" },
+      { name: "Water Purifier Repair", icon: "💧" },
+      { name: "RO Service", icon: "🚰" },
+      { name: "Chimney Repair", icon: "💨" },
+      { name: "Mixer Grinder Repair", icon: "🍽️" },
+      { name: "TV Repair", icon: "📺" },
+    ],
+  },
+  {
+    icon: "💇‍♂️",
+    title: "Men Salon",
+    color: "from-blue-500 to-blue-600",
+    subcategories: [
+      { name: "Haircut & Styling", icon: "✂️" },
+      { name: "Beard Styling", icon: "🧔" },
+      { name: "Hair Spa", icon: "💆‍♂️" },
+      { name: "Facial & Cleanup", icon: "✨" },
+      { name: "Hair Color", icon: "🎨" },
+      { name: "Hair Treatment", icon: "💇" },
+      { name: "Manicure & Pedicure", icon: "💅" },
+      { name: "Head Massage", icon: "💆" },
+    ],
+  },
+  {
+    icon: "🛠️",
+    title: "Home Repair",
+    color: "from-amber-500 to-amber-600",
+    subcategories: [
+      { name: "Carpentry Work", icon: "🪚" },
+      { name: "Furniture Repair", icon: "🪑" },
+      { name: "Drill & Hang", icon: "🔨" },
+      { name: "Painting", icon: "🎨" },
+      { name: "Wall Repair", icon: "🧱" },
+      { name: "Door & Window Repair", icon: "🚪" },
+      { name: "Custom Work", icon: "⚒️" },
+      { name: "Installation Services", icon: "📦" },
+    ],
+  },
+];
+
 export default function Hero() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -25,6 +164,48 @@ export default function Hero() {
 
     return () => clearInterval(interval);
   }, []);
+
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isModalOpen]);
+
+  // Handle escape key to close modal
+  useEffect(() => {
+    if (!isModalOpen) return;
+    
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        closeModal();
+      }
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [isModalOpen]);
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedCategory(null);
+  };
+
+  const handleCategoryClick = (category: Category) => {
+    setSelectedCategory(category);
+    setIsModalOpen(true);
+  };
+
+  const handleSubcategoryClick = (subcategory: Subcategory, category: Category) => {
+    // Navigate to subcategory services page
+    const categorySlug = category.title.toLowerCase().replace(/\s+/g, '-');
+    const subcategorySlug = subcategory.name.toLowerCase().replace(/\s+/g, '-');
+    router.push(`/services/${encodeURIComponent(categorySlug)}/${encodeURIComponent(subcategorySlug)}`);
+  };
 
   return (
     <section className="relative bg-gradient-to-br from-primary-50 via-white to-accent-50 overflow-hidden">
@@ -66,51 +247,11 @@ export default function Hero() {
                   Popular Categories:
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {[
-                    {
-                      icon: "💇‍♀️",
-                      title: "Women Salon",
-                      color: "from-pink-500 to-pink-600",
-                    },
-                    {
-                      icon: "🧹",
-                      title: "Cleaning",
-                      color: "from-green-500 to-green-600",
-                    },
-                    {
-                      icon: "❄️",
-                      title: "AC Service",
-                      color: "from-blue-500 to-blue-600",
-                    },
-                    {
-                      icon: "⚡",
-                      title: "Electrician",
-                      color: "from-yellow-500 to-yellow-600",
-                    },
-                    {
-                      icon: "🚿",
-                      title: "Plumber",
-                      color: "from-cyan-500 to-cyan-600",
-                    },
-                    {
-                      icon: "🔧",
-                      title: "Appliance Repair",
-                      color: "from-indigo-500 to-indigo-600",
-                    },
-                    {
-                      icon: "💇‍♂️",
-                      title: "Men Salon",
-                      color: "from-blue-500 to-blue-600",
-                    },
-                    {
-                      icon: "🛠️",
-                      title: "Home Repair",
-                      color: "from-amber-500 to-amber-600",
-                    },
-                  ].map((category, index) => (
+                  {categories.map((category, index) => (
                     <button
                       key={index}
-                      className="group relative bg-white rounded-xl p-4 shadow-md hover:shadow-xl border border-gray-100 transition-all duration-300 transform hover:scale-105 active:scale-95 overflow-hidden"
+                      onClick={() => handleCategoryClick(category)}
+                      className="group relative bg-white rounded-xl p-4 shadow-md hover:shadow-xl border border-gray-100 transition-all duration-300 transform hover:scale-105 active:scale-95 overflow-hidden cursor-pointer"
                     >
                       {/* Gradient background on hover */}
                       <div
@@ -407,6 +548,89 @@ export default function Hero() {
           </div>
         </AnimateOnScroll>
       </div>
+
+      {/* Subcategory Modal */}
+      {isModalOpen && selectedCategory && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+          onClick={closeModal}
+        >
+          <div
+            className="relative bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden animate-scale-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className={`bg-gradient-to-r ${selectedCategory.color} p-6 text-white relative`}>
+              <button
+                onClick={closeModal}
+                className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/20 transition-all duration-300 transform hover:scale-110 active:scale-95 z-10"
+                aria-label="Close modal"
+              >
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+              
+              <div className="flex items-center gap-4 pr-12">
+                <div className="text-5xl bg-white/20 rounded-2xl p-4 backdrop-blur-sm">
+                  {selectedCategory.icon}
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold mb-1">
+                    {selectedCategory.title}
+                  </h2>
+                  <p className="text-white/90 text-sm">
+                    Choose a service to book
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Subcategories Grid */}
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {selectedCategory.subcategories.map((subcategory, index) => (
+                  <button
+                    key={index}
+                    className="group relative bg-white rounded-xl p-5 border-2 border-gray-100 hover:border-gray-300 hover:shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95 text-left"
+                    onClick={() => {
+                      handleSubcategoryClick(subcategory, selectedCategory);
+                      closeModal();
+                    }}
+                  >
+                    <div className="flex flex-col items-start space-y-2">
+                      <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${selectedCategory.color} opacity-10 group-hover:opacity-20 transition-opacity duration-300 flex items-center justify-center mb-2`}>
+                        <span className="text-2xl">{subcategory.icon}</span>
+                      </div>
+                      <span className="text-sm font-semibold text-gray-900 group-hover:text-gray-700 transition-colors duration-300 leading-tight">
+                        {subcategory.name}
+                      </span>
+                      <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                        <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        <span>4.8</span>
+                        <span className="text-gray-300">•</span>
+                        <span>View Services</span>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
