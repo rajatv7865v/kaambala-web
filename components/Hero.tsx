@@ -290,7 +290,7 @@ export default function Hero() {
                 {/* Large Main Image - Center/Left */}
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[400px] h-[500px] rounded-3xl overflow-hidden shadow-2xl group hover:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5)] transition-all duration-500 transform hover:scale-105 z-20 border-4 border-white">
                   <img
-                    src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=500&h=600&fit=crop"
+                    src="/assets/images/home-banner.jpeg"
                     alt="Beauty & Salon Services"
                     className="w-full h-full object-cover"
                     onError={(e) => {
@@ -320,7 +320,7 @@ export default function Hero() {
                   {/* Medium Image 1 - Cleaning (Top) */}
                   <div className="w-[280px] h-[180px] rounded-2xl overflow-hidden shadow-xl group hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-x-2 border-4 border-white">
                     <img
-                      src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop"
+                      src="/assets/images/Facial.jpeg"
                       alt="Cleaning Services"
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -348,7 +348,7 @@ export default function Hero() {
                   {/* Medium Image 2 - AC/Repair (Middle) */}
                   <div className="w-[280px] h-[180px] rounded-2xl overflow-hidden shadow-xl group hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-x-2 border-4 border-white">
                     <img
-                      src="https://images.unsplash.com/photo-1631542771833-cff2a0e0c0a0?w=400&h=300&fit=crop"
+                      src="/assets/images/AC Repair (1).jpeg"
                       alt="AC & Repair Services"
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -374,9 +374,9 @@ export default function Hero() {
                   </div>
 
                   {/* Medium Image 3 - Plumbing/Electrician (Bottom) */}
-                  <div className="w-[280px] h-[180px] rounded-2xl overflow-hidden shadow-xl group hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-x-2 border-4 border-white">
+                  <div className="w-[280px] h-[180px] rounded-2xl overflow-hidden shadow-xl group hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-x-2 hover:z-[200] border-4 border-white">
                     <img
-                      src="https://images.unsplash.com/photo-1628177142898-93e36e4e3a50?w=400&h=300&fit=crop"
+                      src="/assets/images/Mehandi .jpeg"
                       alt="Plumbing & Electrician Services"
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -385,7 +385,7 @@ export default function Hero() {
                         const parent = target.parentElement;
                         if (parent) {
                           parent.className =
-                            "w-[280px] h-[180px] rounded-2xl overflow-hidden shadow-xl bg-gradient-to-br from-accent-200 to-accent-300 flex items-center justify-center border-4 border-white";
+                            "w-[280px] h-[180px] rounded-2xl overflow-hidden shadow-xl bg-gradient-to-br from-accent-200 to-accent-300 flex items-center justify-center border-4 border-white ";
                           const icon = document.createElement("div");
                           icon.className = "text-5xl";
                           icon.textContent = "🔧";
@@ -618,7 +618,7 @@ export default function Hero() {
                     <div
                       className={`absolute inset-0 bg-gradient-to-br ${selectedCategory.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
                     ></div>
-                    
+
                     {/* Content */}
                     <div className="relative z-10 flex flex-col items-start space-y-3">
                       <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 group-hover:from-white group-hover:to-gray-50 transition-all duration-300 flex items-center justify-center shadow-sm group-hover:shadow-md mb-1">
@@ -646,7 +646,7 @@ export default function Hero() {
                         </span>
                       </div>
                     </div>
-                    
+
                     {/* Arrow indicator */}
                     <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <svg
