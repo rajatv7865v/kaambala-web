@@ -70,25 +70,25 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors duration-200 flex items-center gap-2 group">
+                <a href="/terms" className="text-gray-400 hover:text-primary-400 transition-colors duration-200 flex items-center gap-2 group">
                   <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary-400 transition-colors"></span>
                   Terms & conditions
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors duration-200 flex items-center gap-2 group">
+                <a href="/refund-policy" className="text-gray-400 hover:text-primary-400 transition-colors duration-200 flex items-center gap-2 group">
                   <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary-400 transition-colors"></span>
-                  Privacy policy
+                  Refund Policy 
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors duration-200 flex items-center gap-2 group">
+                <a href="/careers" className="text-gray-400 hover:text-primary-400 transition-colors duration-200 flex items-center gap-2 group">
                   <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary-400 transition-colors"></span>
                   Careers
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors duration-200 flex items-center gap-2 group">
+                <a href="/blog" className="text-gray-400 hover:text-primary-400 transition-colors duration-200 flex items-center gap-2 group">
                   <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary-400 transition-colors"></span>
                   Blog
                 </a>
@@ -115,7 +115,7 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors duration-200 flex items-center gap-2 group">
+                <a href="/help" className="text-gray-400 hover:text-primary-400 transition-colors duration-200 flex items-center gap-2 group">
                   <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary-400 transition-colors"></span>
                   Help & Support
                 </a>
@@ -136,13 +136,13 @@ export default function Footer() {
               <h4 className="font-bold text-white mb-5 text-base">For professionals</h4>
             <ul className="space-y-3 text-sm">
               <li>
-                <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors duration-200 flex items-center gap-2 group">
+                <a href="/provider/signup" className="text-gray-400 hover:text-primary-400 transition-colors duration-200 flex items-center gap-2 group">
                   <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary-400 transition-colors"></span>
                   Register as professional
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-primary-400 transition-colors duration-200 flex items-center gap-2 group">
+                <a href="/provider/login" className="text-gray-400 hover:text-primary-400 transition-colors duration-200 flex items-center gap-2 group">
                   <span className="w-1 h-1 bg-gray-600 rounded-full group-hover:bg-primary-400 transition-colors"></span>
                   Partner login
                 </a>
